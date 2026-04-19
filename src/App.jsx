@@ -4,7 +4,7 @@ import confetti from 'canvas-confetti';
 import {
   Heart, Sparkles, Gift, Camera, Star, Music2,
   PartyPopper, Cake, Diamond, FlowerIcon, Settings, X, Plus, Trash2, Upload, 
-  ChevronRight, ChevronLeft, Volume2, VolumeX, Edit3, Save, Music, Clock, Mail, Calendar, HeartOff, Notebook
+  ChevronRight, ChevronLeft, Volume2, VolumeX, Edit3, Save, Music, Clock, Mail, Calendar, HeartOff, Notebook, Palette
 } from 'lucide-react';
 import './index.css';
 
@@ -51,56 +51,34 @@ function ParticleBackground() {
 }
 
 /* ─────────────────────────────────────────────
-   QUIZ COMPONENT
+   VISUALIZER COMPONENT
  ───────────────────────────────────────────── */
-function BirthdayQuiz() {
-  const questions = [
-    { q: "What is her favorite color?", options: ["Pink", "Red", "Blue", "Lavender"], correct: 0 },
-    { q: "Where would she most likely go on a vacation?", options: ["Beach", "Mountains", "Big City", "Forest"], correct: 1 },
-    { q: "What's her secret superpower?", options: ["Being Kind", "Making Friends", "Reading Minds", "Best Cook"], correct: 0 }
-  ];
-  const [current, setCurrent] = useState(0);
-  const [score, setScore] = useState(0);
-  const [showResult, setShowResult] = useState(false);
-  const [feedback, setFeedback] = useState(null);
-
-  const handleAnswer = (idx) => {
-    if (idx === questions[current].correct) {
-      setScore(score + 1);
-      setFeedback("correct");
-      confetti({ particleCount: 30, spread: 40 });
-    } else {
-      setFeedback("wrong");
-    }
-    setTimeout(() => {
-      setFeedback(null);
-      if (current < questions.length - 1) setCurrent(current + 1);
-      else setShowResult(true);
-    }, 1000);
-  };
-
+function AudioVisualizer({ isPlaying }) {
   return (
-    <div className="quiz-card">
-      {!showResult ? (
-        <>
-          <h4 style={{ marginBottom: '1rem', color: 'var(--primary)' }}>Quiz: How well do you know her?</h4>
-          <p style={{ fontWeight: 600, fontSize: '1.2rem', marginBottom: '1.5rem' }}>{questions[current].q}</p>
-          {questions[current].options.map((opt, i) => (
-            <button key={i} className={`quiz-option ${feedback && i === questions[current].correct ? 'correct' : feedback && i !== questions[current].correct ? 'wrong' : ''}`} 
-                    onClick={() => !feedback && handleAnswer(i)}>
-              {opt}
-            </button>
-          ))}
-        </>
-      ) : (
-        <div style={{ textAlign: 'center' }}>
-          <h3>Quiz Finished! 🎉</h3>
-          <p style={{ fontSize: '1.5rem', margin: '1rem 0' }}>Score: {score}/{questions.length}</p>
-          <button className="btn-primary" onClick={() => { setCurrent(0); setScore(0); setShowResult(false); }}>Try Again</button>
-        </div>
-      )}
+    <div className="visualizer">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <motion.div key={i} className="bar" animate={{ height: isPlaying ? [4, 18, 6, 20, 8] : 4 }} transition={{ duration: 0.5, repeat: Infinity, delay: i * 0.1 }} />
+      ))}
     </div>
   );
+}
+
+/* ─────────────────────────────────────────────
+   GIFT RAIN
+ ───────────────────────────────────────────── */
+function GiftRain({ start }) {
+  const [gifts, setGifts] = useState([]);
+  useEffect(() => {
+    if (start) {
+      const interval = setInterval(() => {
+        const id = Date.now();
+        setGifts(prev => [...prev, { id, left: Math.random() * 95, icon: ['🎁','🎈','🎀','🎂'][Math.floor(Math.random()*4)] }]);
+        setTimeout(() => setGifts(prev => prev.filter(g => g.id !== id)), 4000);
+      }, 300);
+      setTimeout(() => clearInterval(interval), 5000);
+    }
+  }, [start]);
+  return gifts.map(g => <motion.div key={g.id} className="gift-item" style={{ left: `${g.left}%` }} initial={{ top: -50 }} animate={{ top: '110vh' }} transition={{ duration: 3, ease: 'linear' }}>{g.icon}</motion.div>);
 }
 
 /* ─────────────────────────────────────────────
@@ -110,111 +88,92 @@ function App() {
   const [showContent, setShowContent] = useState(false);
   const [isBlown, setIsBlown] = useState(false);
   const [showHearts, setShowHearts] = useState(false);
+  const [giftRain, setGiftRain] = useState(false);
+  const [theme, setTheme] = useState('default');
   const [data, setData] = useState(() => {
-    const saved = localStorage.getItem('birthday_master_data');
+    const saved = localStorage.getItem('birthday_elite_data');
     return saved ? JSON.parse(saved) : {
       title: "Happy Birthday!",
       message: "May your 28th April be filled with immense joy and beautiful smiles.",
       secretLetter: "To the most special person...\n\nI hope this birthday is just as beautiful as you are.",
       images: [], audio: null,
-      timeline: [ { year: '2023', text: 'The beginning of something beautiful.' } ],
-      stickyNotes: [ { text: "You are the best! 💖", color: "#fef08a" }, { text: "Keep shining! ✨", color: "#bbf7d0" } ]
+      timeline: [ { year: '2024', text: 'Another year of being amazing!' } ],
+      stickyNotes: [ { text: "Best wishes! 💖" } ]
     };
   });
 
-  useEffect(() => { localStorage.setItem('birthday_master_data', JSON.stringify(data)); }, [data]);
-  const [currentPic, setCurrentPic] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef(null);
-
-  const handleBlow = () => {
-    if (!isBlown) {
-      setIsBlown(true);
-      confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 } });
-    }
+  useEffect(() => { localStorage.setItem('birthday_elite_data', JSON.stringify(data)); }, [data]);
+  
+  const togglePlay = () => {
+    setIsPlaying(!isPlaying);
+    if (!isPlaying && audioRef.current) audioRef.current.play().catch(e => console.log(e));
+    else if (audioRef.current) audioRef.current.pause();
   };
 
   return (
-    <div style={{ position: 'relative', minHeight: '100vh', width: '100%', overflowX: 'hidden' }}>
+    <div className={`app-root ${theme !== 'default' ? `theme-${theme}` : ''}`} style={{ position: 'relative', minHeight: '100vh', width: '100%', overflowX: 'hidden' }}>
       <ParticleBackground />
+      <GiftRain start={giftRain} />
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 1 }}>
-        {showHearts && Array.from({ length: 12 }).map((_, i) => (
-          <motion.div key={i} className="heart-rain" style={{ left: `${Math.random() * 100}%`, animationDuration: `${Math.random() * 2 + 3}s`, animationDelay: `${Math.random() * 5}s` }}>💖</motion.div>
-        ))}
+        {showHearts && Array.from({ length: 12 }).map((_, i) => <motion.div key={i} className="heart-rain" style={{ left: `${Math.random() * 100}%`, animationDuration: `${Math.random() * 3 + 2}s` }}>💖</motion.div>)}
       </div>
-      
+
       <audio ref={audioRef} src={data.audio} loop />
 
       <AnimatePresence mode="wait">
         {!showContent ? (
           <motion.div key="landing" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', textAlign: 'center', padding: '1.5rem', position: 'relative', zIndex: 2 }}>
-            <div className="candle" onClick={handleBlow}><AnimatePresence>{!isBlown && <motion.div exit={{ opacity: 0, scale: 0 }} className="flame" />}</AnimatePresence></div>
-            <Cake size={110} className="floating-b" color="#ff4d6d" style={{ filter: 'drop-shadow(0 0 25px rgba(255,255,255,0.9))', marginTop: '10px' }} />
-            <h1 className="rainbow-text" style={{ fontSize: 'clamp(3rem, 12vw, 6.5rem)', margin: '1rem 0' }}>{data.title}</h1>
-            <p style={{ color: '#666', marginBottom: '2rem' }}>{isBlown ? "Wish made! ✨ Click below." : "Blow out the candle to start!"}</p>
-            {isBlown && <motion.button className="btn-primary" initial={{ scale: 0 }} animate={{ scale: 1 }} onClick={() => { setShowContent(true); if(audioRef.current) audioRef.current.play().catch(e=>console.log(e)); }}><Gift style={{ marginRight: 10 }} /> Open Surprise</motion.button>}
+            <div className="candle" onClick={() => { setIsBlown(true); confetti({ particleCount: 150 }); }}><AnimatePresence>{!isBlown && <motion.div exit={{ opacity: 0, scale: 0 }} className="flame" />}</AnimatePresence></div>
+            <Cake size={110} className="floating-b" color="#ff4d6d" style={{ marginTop: '10px' }} />
+            <h1 className="rainbow-text" style={{ fontSize: 'clamp(3rem, 12vw, 6.5rem)' }}>{data.title}</h1>
+            {isBlown && <motion.button className="btn-primary" initial={{ scale: 0 }} animate={{ scale: 1 }} onClick={() => setShowContent(true)}>Open Surprise 🎁</motion.button>}
           </motion.div>
         ) : (
           <motion.div key="content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ padding: 'clamp(0.8rem, 4vw, 3rem)', maxWidth: '1000px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
             
-            {/* HERO */}
+            {/* TOP CONTROLS */}
+            <div className="audio-player">
+              <AudioVisualizer isPlaying={isPlaying} />
+              <button className={`music-btn ${isPlaying ? 'playing' : ''}`} onClick={togglePlay}>{isPlaying ? <Volume2 /> : <VolumeX />}</button>
+              <div className="theme-dot" style={{ background: '#ff4d6d' }} onClick={() => setTheme('default')} />
+              <div className="theme-dot" style={{ background: '#c5a059' }} onClick={() => setTheme('gold')} />
+              <div className="theme-dot" style={{ background: '#9b5de5' }} onClick={() => setTheme('purple')} />
+            </div>
+
             <div className="glass-card" style={{ padding: '3.5rem 1.5rem', textAlign: 'center', marginBottom: '3rem' }}>
               <Heart size={80} fill="var(--primary)" color="var(--primary)" className="heartbeat-anim" style={{ marginBottom: '1.5rem' }} />
               <h1 className="rainbow-text" style={{ fontSize: 'clamp(2.5rem, 8vw, 4.5rem)' }}>{data.title}</h1>
               <p style={{ fontSize: '1.3rem', color: '#4a4e69', marginBottom: '2rem' }}>{data.message}</p>
-              <button className="btn-primary" onClick={() => setShowHearts(!showHearts)}>{showHearts ? "Stop Love" : "Rain Love ❤️"}</button>
-            </div>
-
-            {/* QUIZ */}
-            <BirthdayQuiz />
-
-            {/* STICKY NOTES */}
-            <div style={{ marginBottom: '4rem' }}>
-              <h3 style={{ textAlign: 'center', marginBottom: '2rem' }} className="shimmer-text">Memory Wall 📌</h3>
-              <div className="memory-wall">
-                {data.stickyNotes.map((note, i) => (
-                  <motion.div key={i} className="sticky-note" whileHover={{ scale: 1.1 }}>{note.text}</motion.div>
-                ))}
-                <button className="btn-primary" style={{ height: '50px', alignSelf: 'center' }} onClick={() => { 
-                  const text = prompt("Enter a small memory:");
-                  if (text) setData({...data, stickyNotes: [...data.stickyNotes, { text, color: '#fef08a' }]});
-                }}><Plus /> Add Note</button>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
+                <button className="btn-primary" onClick={() => setShowHearts(!showHearts)}>{showHearts ? "Stop Hearts" : "Rain Hearts"}</button>
+                <button className="btn-primary" onClick={() => { setGiftRain(true); setTimeout(()=>setGiftRain(false), 5000); }}>Gift Rain! 🎁</button>
               </div>
             </div>
 
             {/* GALLERY */}
             <div className="glass-card" style={{ padding: '2rem', marginBottom: '3rem' }}>
-              <h3 style={{ textAlign: 'center', fontSize: '2rem', marginBottom: '2rem' }}>Memories 📸</h3>
+              <h3 style={{ textAlign: 'center', fontSize: '2.2rem', marginBottom: '2rem' }}>Memories 📸</h3>
               {data.images.length > 0 ? (
-                <div style={{ textAlign: 'center' }}>
-                  <div className="photo-frame" style={{ maxWidth: '400px', margin: '0 auto', aspectRatio: '3/4' }}>
-                    <AnimatePresence mode="wait"><motion.img key={currentPic} src={data.images[currentPic].src} style={{ width: '100%', height: '100%', objectFit: 'cover' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} /></AnimatePresence>
-                    <button className="nav-arrow left" style={{ left: 10, position: 'absolute', top: '50%' }} onClick={() => setCurrentPic(c => (c > 0 ? c - 1 : data.images.length - 1))}><ChevronLeft /></button>
-                    <button className="nav-arrow right" style={{ right: 10, position: 'absolute', top: '50%' }} onClick={() => setCurrentPic(c => (c < data.images.length - 1 ? c + 1 : 0))}><ChevronRight /></button>
-                  </div>
+                <div className="photo-frame" style={{ maxWidth: '400px', margin: '0 auto', aspectRatio: '3/4' }}>
+                   <img src={data.images[0].src} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
-              ) : <p style={{ textAlign: 'center' }}>Add photos below!</p>}
-            </div>
-
-            {/* SECRET LETTER */}
-            <div className="secret-letter" style={{ marginBottom: '3rem' }}>
-              <h3 style={{ textAlign: 'center', fontFamily: 'Playfair Display' }}>My Secret Note ✉️</h3>
-              {data.secretLetter.split('\n').map((l, i) => <p key={i}>{l}</p>)}
+              ) : <p style={{ textAlign: 'center' }}>Add your photos below!</p>}
             </div>
 
             {/* EDITOR */}
             <div className="glass-card" style={{ padding: '2.5rem', marginBottom: '4rem' }}>
-              <h3>👑 Master Creator Panel</h3>
+              <h3>🔧 Customize Your Surpise</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '2rem' }}>
                 <div><label>Big Title</label><input className="input-field" value={data.title} onChange={e => setData({...data, title: e.target.value})} /></div>
-                <div><label>Short Msg</label><textarea className="input-field" value={data.message} onChange={e => setData({...data, message: e.target.value})} /></div>
-                <div><label>Secret Letter</label><textarea className="input-field" style={{ minHeight: '120px' }} value={data.secretLetter} onChange={e => setData({...data, secretLetter: e.target.value})} /></div>
-                <div><label>Music (Upload MP3)</label><input type="file" onChange={e => { const r = new FileReader(); r.onload = () => setData({...data, audio: r.result}); r.readAsDataURL(e.target.files[0]); }} /></div>
-                <div><label>Gallery (Upload Photos)</label><input type="file" multiple onChange={e => { Array.from(e.target.files).forEach(f => { const r = new FileReader(); r.onload = () => setData(prev => ({...prev, images: [...prev.images, { src: r.result, label: 'Memory' }] })); r.readAsDataURL(f); }); }} /></div>
-                <div className="image-preview-grid">{data.images.map((img, i) => (<div key={i} className="preview-item"><img src={img.src} /><button className="remove-btn" onClick={() => setData(prev => ({...prev, images: prev.images.filter((_, idx) => idx !== i)}))}>X</button></div>))}</div>
+                <div><label>Personal Message</label><textarea className="input-field" value={data.message} onChange={e => setData({...data, message: e.target.value})} /></div>
+                <div><label>Upload Audio (MP3)</label><input type="file" accept="audio/*" onChange={e => { const r = new FileReader(); r.onload = () => setData({...data, audio: r.result}); r.readAsDataURL(e.target.files[0]); }} /></div>
+                <div><label>Upload Photos</label><input type="file" multiple onChange={e => { Array.from(e.target.files).forEach(f => { const r = new FileReader(); r.onload = () => setData(prev => ({...prev, images: [...prev.images, { src: r.result }] })); r.readAsDataURL(f); }); }} /></div>
               </div>
             </div>
 
-            <div style={{ textAlign: 'center', padding: '5rem 0' }}><PartyPopper size={60} color="var(--primary)" /><h2 className="shimmer-text">Happy Birthday Once Again! 🎊</h2></div>
+            <div style={{ textAlign: 'center', padding: '5rem 0' }}><PartyPopper size={60} color="var(--primary)" /><h2 className="shimmer-text">Ready to celebrate! 🎉</h2></div>
           </motion.div>
         )}
       </AnimatePresence>

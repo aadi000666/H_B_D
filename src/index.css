@@ -17,6 +17,24 @@
   --shadow-color: rgba(255, 77, 109, 0.2);
 }
 
+.theme-gold {
+  --primary: #c5a059;
+  --primary-light: #e6c891;
+  --primary-dark: #96703b;
+  --accent: #8b6b3b;
+  --pink-soft: #f9f5e8;
+  --shadow-color: rgba(197, 160, 89, 0.2);
+}
+
+.theme-purple {
+  --primary: #9b5de5;
+  --primary-light: #bdb2ff;
+  --primary-dark: #5a189a;
+  --accent: #7209b7;
+  --pink-soft: #f3e5f5;
+  --shadow-color: rgba(155, 93, 229, 0.2);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -628,9 +646,51 @@ h1, h2, h3 {
   box-shadow: 0 0 10px #f97316;
 }
 
-@keyframes flicker {
-  to { transform: scale(1.1) rotate(2deg); opacity: 0.8; }
+/* ===== AUDIO VISUALIZER ===== */
+.visualizer {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 20px;
 }
+
+.bar {
+  width: 3px;
+  background: var(--primary);
+  border-radius: 2px;
+  animation: visualize 1s infinite;
+}
+
+@keyframes visualize {
+  0%, 100% { height: 4px; }
+  50% { height: 20px; }
+}
+
+/* ===== GIFT RAIN ===== */
+.gift-item {
+  position: fixed;
+  top: -50px;
+  z-index: 200;
+  font-size: 2rem;
+  animation: giftFall linear forwards;
+}
+
+@keyframes giftFall {
+  to { transform: translateY(110vh) rotate(720deg); }
+}
+
+/* ===== THEME SELECTOR ===== */
+.theme-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid white;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  transition: all 0.3s;
+}
+
+.theme-dot:hover { transform: scale(1.2); }
 
 /* ===== MEMORY WALL / STICKY NOTES ===== */
 .memory-wall {
