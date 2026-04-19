@@ -4,7 +4,7 @@ import confetti from 'canvas-confetti';
 import {
   Heart, Sparkles, Gift, Camera, Star, Music2,
   PartyPopper, Cake, Diamond, FlowerIcon, Settings, X, Plus, Trash2, Upload, 
-  ChevronRight, ChevronLeft, Volume2, VolumeX, Edit3, Save, Music, Clock, Mail, Calendar, HeartOff, Notebook, Palette, Mic, Play, Pause, Sun, Moon, Lock, Unlock, Waves
+  ChevronRight, ChevronLeft, Volume2, VolumeX, Edit3, Save, Music, Clock, Mail, Calendar, HeartOff, Notebook, Palette, Mic, Play, Pause, Sun, Moon, Lock, Unlock, Waves, Video, Share2
 } from 'lucide-react';
 import './index.css';
 
@@ -15,6 +15,7 @@ function ParticleBackground() {
   const canvasRef = useRef(null);
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     let animId;
     const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
@@ -70,6 +71,17 @@ function PhotoCube({ images }) {
 }
 
 /* ─────────────────────────────────────────────
+   FLOATING WISHES
+ ───────────────────────────────────────────── */
+function FloatingWishes({ wishes }) {
+  return wishes.map((w, i) => (
+    <motion.div key={i} className="wish-cloud" style={{ top: `${15 + (i * 12)}%`, animationDuration: `${20 + (i * 5)}s`, animationDelay: `${i * 2}s` }}>
+       ☁️ {w}
+    </motion.div>
+  ));
+}
+
+/* ─────────────────────────────────────────────
    MAIN APP
  ───────────────────────────────────────────── */
 function App() {
@@ -77,60 +89,45 @@ function App() {
   const [showContent, setShowContent] = useState(false);
   const [isBlown, setIsBlown] = useState(false);
   const [showHearts, setShowHearts] = useState(false);
-  const [showBottle, setShowBottle] = useState(null);
-  const [unlockWord, setUnlockWord] = useState("");
   const [isUnlocked, setIsUnlocked] = useState(false);
+  const [unlockWord, setUnlockWord] = useState("");
   const [theme, setTheme] = useState('default');
   
   const [data, setData] = useState(() => {
-    const saved = localStorage.getItem('birthday_pinnacle_data');
+    const saved = localStorage.getItem('birthday_ultimate_final_data');
     return saved ? JSON.parse(saved) : {
       title: "Happy Birthday!",
       message: "May your 28th April be filled with immense joy and beautiful smiles.",
       secretLetter: "To the most special person...\n\nI hope this birthday is just as beautiful as you are.",
       secretWord: "SIYA",
       unlockMessage: "You discovered the secret! You are my forever star. ✨❤️",
-      images: [], audio: null, voice: null,
-      timeline: [ { year: '2024', text: 'Another year of being amazing!' } ],
-      stickyNotes: [ { text: "You're a star! 🌟", color: '#fef08a' } ]
+      images: [], audio: null, video: null, voice: null,
+      timeline: [ { title: 'The Miracle', text: 'April 28th - The day the world got brighter.' }, { title: 'First Meeting', text: 'When our paths finally crossed.' } ],
+      wishes: [ "Stay Blessed!", "Keep Smiling!", "Infinite Love!", "Stay Happy!" ],
+      stickyNotes: [ { text: "You're a star! 🌟"} ]
     };
   });
 
-  useEffect(() => { localStorage.setItem('birthday_pinnacle_data', JSON.stringify(data)); }, [data]);
+  useEffect(() => { localStorage.setItem('birthday_ultimate_final_data', JSON.stringify(data)); }, [data]);
   const audioRef = useRef(null);
-  const quotes = ["Your smile is my sunshine! ☀️", "You make every day feel like a celebration! 🎉", "To the moon and back! 🌙", "Infinite love for you! 💖", "Keep shineing, queen! 👑"];
 
   return (
     <div className={`app-root ${theme !== 'default' ? `theme-${theme}` : ''}`} style={{ position: 'relative', minHeight: '100vh', width: '100%', overflowX: 'hidden' }}>
       <ParticleBackground />
+      <FloatingWishes wishes={data.wishes} />
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 1 }}>
         {showHearts && Array.from({ length: 15 }).map((_, i) => <motion.div key={i} className="heart-rain" style={{ left: `${Math.random() * 100}%`, animationDuration: `${Math.random() * 3 + 2}s` }}>💖</motion.div>)}
       </div>
 
       <audio ref={audioRef} src={data.audio} loop />
 
-      {/* MESSAGE IN A BOTTLE */}
-      {showContent && (
-        <motion.div className="bottle-float" whileHover={{ scale: 1.2 }} onClick={() => setShowBottle(quotes[Math.floor(Math.random()*quotes.length)])}>
-           <Waves size={40} color="var(--primary)" />
-        </motion.div>
-      )}
-      <AnimatePresence>
-        {showBottle && (
-          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} className="bottle-popup" onClick={() => setShowBottle(null)}>
-             <p>{showBottle}</p>
-             <button className="btn-primary" style={{ marginTop: '1rem', padding: '8px 20px' }}>Close</button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       <AnimatePresence mode="wait">
         {!showContent ? (
           <motion.div key="landing" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', textAlign: 'center', padding: '1.5rem', position: 'relative', zIndex: 2 }}>
             <div className={`gift-box-wrapper ${isUnboxed ? 'open' : ''}`} onClick={() => { setIsUnboxed(true); confetti({ particleCount: 150 }); }}>
                  {!isUnboxed ? (
-                    <motion.div animate={{ rotate: [0, -5, 5, -5, 0], scale: [1, 1.05, 1] }} transition={{ repeat: Infinity, duration: 2 }}>
-                        <Gift size={120} color="var(--primary)" style={{ filter: 'drop-shadow(0 0 20px rgba(255,77,109,0.5))' }} />
+                    <motion.div animate={{ rotate: [0, -5, 5, -5, 0] }} transition={{ repeat: Infinity, duration: 2 }}>
+                        <Gift size={120} color="var(--primary)" />
                     </motion.div>
                  ) : (
                     <div style={{ marginTop: '20px' }}>
@@ -140,7 +137,7 @@ function App() {
                  )}
             </div>
             <h1 className="rainbow-text" style={{ fontSize: 'clamp(3rem, 12vw, 6.5rem)', marginTop: '20px' }}>{data.title}</h1>
-            {isBlown && <motion.button className="btn-primary" initial={{ scale: 0 }} animate={{ scale: 1 }} onClick={() => { setShowContent(true); if(audioRef.current) audioRef.current.play(); }}>Open Gift 🎁</motion.button>}
+            {isBlown && <motion.button className="btn-primary" initial={{ scale: 0 }} animate={{ scale: 1 }} onClick={() => { setShowContent(true); if(audioRef.current) audioRef.current.play(); }}>Open Surprise 🎁</motion.button>}
           </motion.div>
         ) : (
           <motion.div key="content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ padding: 'clamp(0.8rem, 4vw, 3rem)', maxWidth: '1000px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
@@ -163,35 +160,54 @@ function App() {
               <button className="btn-primary" onClick={() => setShowHearts(!showHearts)}>Rain Love ❤️</button>
             </div>
 
+            {/* VIDEO PLAYER */}
+            {data.video && (
+             <div className="video-container">
+               <video className="video-frame" controls src={data.video}></video>
+             </div>
+            )}
+
             {/* 3D CUBE */}
             <PhotoCube images={data.images} />
 
-            {/* SECRET UNLOCK */}
-            <div className="unlock-panel">
-               <h3 style={{ marginBottom: '1rem' }}><Lock size={24} style={{ marginRight: 8 }} /> Master Secret Surprise</h3>
-               <p style={{ marginBottom: '1rem', color: '#666' }}>Type the secret word to unlock an extra message!</p>
-               <input className="unlock-input" placeholder="Type word..." value={unlockWord} onChange={e => setUnlockWord(e.target.value)} />
-               <button className="btn-primary" style={{ padding: '10px 25px' }} onClick={() => { if(unlockWord.toUpperCase() === data.secretWord.toUpperCase()) { setIsUnlocked(true); confetti({ particleCount: 200, spread: 100 }); } else alert("Wrong word! Ask the sender for the key. 😉"); }}>Check</button>
-               <AnimatePresence>
-                 {isUnlocked && (
-                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className="magic-reveal">
-                       <Sparkles color="var(--gold)" style={{ marginBottom: 10 }} />
-                       <h2 className="shimmer-text">Success! Unlock Code Accepted.</h2>
-                       <p style={{ fontSize: '1.5rem', fontFamily: 'Dancing Script', marginTop: '1rem' }}>{data.unlockMessage}</p>
-                    </motion.div>
-                 )}
-               </AnimatePresence>
+            {/* JOURNEY TIMELINE */}
+            <div style={{ marginBottom: '4rem' }}>
+              <h3 style={{ textAlign: 'center', fontSize: '2.2rem', marginBottom: '3rem' }} className="shimmer-text">Our Journey 🛤️</h3>
+              <div className="journey-line">
+                {data.timeline.map((item, i) => (
+                  <div key={i} className={`journey-event ${i % 2 === 0 ? 'left' : 'right'}`}>
+                    <div className="journey-dot" />
+                    <div className="journey-content">
+                      <h4 style={{ color: 'var(--primary)' }}>{item.title}</h4>
+                      <p>{item.text}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* SECRET REVEAL */}
+            <div className="glass-card" style={{ padding: '2.5rem', textAlign: 'center', marginBottom: '3rem' }}>
+                <h3 style={{ marginBottom: '1.5rem' }}>🔐 Secret Surprise</h3>
+                <input className="unlock-input" placeholder="Enter Secret Word..." value={unlockWord} onChange={e => setUnlockWord(e.target.value)} />
+                <button className="btn-primary" style={{ padding: '10px 25px' }} onClick={() => { if(unlockWord.toUpperCase() === data.secretWord.toUpperCase()) { setIsUnlocked(true); confetti({ particleCount: 200, spread: 100 }); } else alert("Wrong key! 😉"); }}>Unlock</button>
+                {isUnlocked && <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} className="magic-reveal"><h2 className="shimmer-text">Revealed!</h2><p style={{ fontSize: '1.4rem', fontFamily: 'Dancing Script' }}>{data.unlockMessage}</p></motion.div>}
             </div>
 
             {/* EDITOR */}
-            <div className="glass-card" style={{ padding: '2.5rem', marginBottom: '4rem', marginTop: '4rem' }}>
-              <h3>👑 Pinnacle Creation Panel</h3>
+            <div className="glass-card" style={{ padding: '2.5rem', marginBottom: '4rem' }}>
+              <h3>👑 Ultimate Creation Panel</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '2rem' }}>
                 <div><label>Big Title</label><input className="input-field" value={data.title} onChange={e => setData({...data, title: e.target.value})} /></div>
-                <div><label>Secret Word (for unlock)</label><input className="input-field" value={data.secretWord} onChange={e => setData({...data, secretWord: e.target.value})} /></div>
-                <div><label>Unlock Message</label><textarea className="input-field" value={data.unlockMessage} onChange={e => setData({...data, unlockMessage: e.target.value})} /></div>
+                <div><label>Main Message</label><textarea className="input-field" value={data.message} onChange={e => setData({...data, message: e.target.value})} /></div>
+                <div><label>Secret Word & Msg</label>
+                    <input className="input-field" placeholder="Secret Word" value={data.secretWord} onChange={e => setData({...data, secretWord: e.target.value})} />
+                    <textarea className="input-field" placeholder="Unlock Message" value={data.unlockMessage} onChange={e => setData({...data, unlockMessage: e.target.value})} />
+                </div>
+                <div><label>Floating Wishes (comma separated)</label><input className="input-field" value={data.wishes.join(', ')} onChange={e => setData({...data, wishes: e.target.value.split(',').map(s=>s.trim())})} /></div>
+                <div><label>Upload Video</label><input type="file" accept="video/*" onChange={e => { const r = new FileReader(); r.onload = () => setData({...data, video: r.result}); r.readAsDataURL(e.target.files[0]); }} /></div>
                 <div><label>Upload Audio</label><input type="file" onChange={e => { const r = new FileReader(); r.onload = () => setData({...data, audio: r.result}); r.readAsDataURL(e.target.files[0]); }} /></div>
-                <div><label>Photos (Need 6 for Cube)</label><input type="file" multiple onChange={e => { Array.from(e.target.files).forEach(f => { const r = new FileReader(); r.onload = () => setData(prev => ({...prev, images: [...prev.images, { src: r.result }] })); r.readAsDataURL(f); }); }} /></div>
+                <div><label>Upload Photos (Need 6 for Cube)</label><input type="file" multiple onChange={e => { Array.from(e.target.files).forEach(f => { const r = new FileReader(); r.onload = () => setData(prev => ({...prev, images: [...prev.images, { src: r.result }] })); r.readAsDataURL(f); }); }} /></div>
               </div>
             </div>
           </motion.div>
