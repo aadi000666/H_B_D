@@ -546,13 +546,96 @@ h1, h2, h3 {
   transform: scale(1.05);
 }
 
+/* ===== JOURNEY TIMELINE ===== */
+.timeline {
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 0;
+}
+
+.timeline::after {
+  content: '';
+  position: absolute;
+  width: 2px;
+  background: var(--pink-soft);
+  top: 0; bottom: 0;
+  left: 50%;
+  margin-left: -1px;
+}
+
+.timeline-item {
+  padding: 10px 40px;
+  position: relative;
+  width: 50%;
+  box-sizing: border-box;
+}
+
+.timeline-item.left { left: 0; text-align: right; }
+.timeline-item.right { left: 50%; text-align: left; }
+
+.timeline-content {
+  padding: 20px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  border: 1px solid var(--pink-soft);
+}
+
+.timeline-dot {
+  position: absolute;
+  width: 16px; height: 16px;
+  background: var(--primary);
+  border-radius: 50%;
+  top: 15px;
+  z-index: 1;
+}
+
+.left .timeline-dot { right: -8px; }
+.right .timeline-dot { left: -8px; }
+
+/* ===== HEART RAIN ===== */
+.heart-rain {
+  position: fixed;
+  top: -20px;
+  font-size: 1.5rem;
+  z-index: 100;
+  pointer-events: none;
+  animation: fall linear infinite;
+}
+
+@keyframes fall {
+  to { transform: translateY(105vh) rotate(360deg); }
+}
+
+/* ===== CANDLE ===== */
+.candle {
+  width: 10px; height: 35px;
+  background: #fff;
+  border-radius: 4px;
+  position: relative;
+  margin: 0 auto;
+  margin-top: -15px;
+}
+
+.flame {
+  width: 12px; height: 20px;
+  background: radial-gradient(#fff, #fde047, #f97316);
+  border-radius: 50%;
+  position: absolute;
+  top: -18px; left: -1px;
+  animation: flicker 0.1s infinite alternate;
+  box-shadow: 0 0 10px #f97316;
+}
+
+@keyframes flicker {
+  to { transform: scale(1.1) rotate(2deg); opacity: 0.8; }
+}
+
 /* ===== MOBILE ADJUSTMENTS ===== */
 @media (max-width: 600px) {
-  .audio-player {
-    top: 16px;
-    right: 16px;
-  }
-  .countdown-box span {
-    font-size: 1.2rem;
-  }
+  .timeline::after { left: 31px; }
+  .timeline-item { width: 100%; padding-left: 70px; padding-right: 25px; text-align: left !important; }
+  .timeline-item.right { left: 0; }
+  .timeline-dot { left: 23px !important; }
 }
