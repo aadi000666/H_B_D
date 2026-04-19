@@ -4,7 +4,7 @@ import confetti from 'canvas-confetti';
 import {
   Heart, Sparkles, Gift, Camera, Star, Music2,
   PartyPopper, Cake, Diamond, FlowerIcon, Settings, X, Plus, Trash2, Upload, 
-  ChevronRight, ChevronLeft, Volume2, VolumeX, Edit3, Save, Music, Clock, Mail, Calendar, HeartOff, Notebook, Palette, Mic, Play, Pause, Sun, Moon, Lock, Unlock, Waves, Video, Share2
+  ChevronRight, ChevronLeft, Volume2, VolumeX, Edit3, Save, Music, Clock, Mail, Calendar, HeartOff, Notebook, Palette, Mic, Play, Pause, Sun, Moon, Lock, Unlock, Waves, Video, Share2, Layers
 } from 'lucide-react';
 import './index.css';
 
@@ -52,33 +52,35 @@ function ParticleBackground() {
 }
 
 /* ─────────────────────────────────────────────
-   3D PHOTO CUBE
+   SWIPEABLE CARD DECK
  ───────────────────────────────────────────── */
-function PhotoCube({ images }) {
-  if (images.length < 1) return null;
-  const faces = ['front', 'back', 'right', 'left', 'top', 'bottom'];
+function SwipeDeck({ cards }) {
+  const [deck, setDeck] = useState(cards);
+  const swipeAway = (id) => setDeck(prev => prev.filter(c => c.id !== id));
+
   return (
-    <div className="cube-container">
-      <div className="cube">
-        {faces.map((f, i) => (
-          <div key={f} className={`cube-face ${f}`}>
-            <img src={images[i % images.length].src} alt="" />
-          </div>
-        ))}
-      </div>
+    <div className="deck-container">
+      <AnimatePresence>
+        {deck.map((card, i) => (
+          <motion.div
+            key={card.id}
+            className="swipe-card"
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            onDragEnd={(e, info) => { if (Math.abs(info.point.x) > 100) swipeAway(card.id); }}
+            style={{ zIndex: deck.length - i }}
+            exit={{ x: 500, opacity: 0, rotate: 45 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+          >
+             <h3 style={{ marginBottom: '1rem', color: 'var(--primary)' }}>{card.title}</h3>
+             <p style={{ fontSize: '1.2rem', fontFamily: 'Dancing Script' }}>{card.text}</p>
+             <small style={{ marginTop: '1.5rem', color: '#888' }}>Swipe to skip →</small>
+          </motion.div>
+        )).reverse()}
+      </AnimatePresence>
+      {deck.length === 0 && <p style={{ textAlign: 'center', marginTop: '150px' }}>You read all the wishes! ✨</p>}
     </div>
   );
-}
-
-/* ─────────────────────────────────────────────
-   FLOATING WISHES
- ───────────────────────────────────────────── */
-function FloatingWishes({ wishes }) {
-  return wishes.map((w, i) => (
-    <motion.div key={i} className="wish-cloud" style={{ top: `${15 + (i * 12)}%`, animationDuration: `${20 + (i * 5)}s`, animationDelay: `${i * 2}s` }}>
-       ☁️ {w}
-    </motion.div>
-  ));
 }
 
 /* ─────────────────────────────────────────────
@@ -89,32 +91,30 @@ function App() {
   const [showContent, setShowContent] = useState(false);
   const [isBlown, setIsBlown] = useState(false);
   const [showHearts, setShowHearts] = useState(false);
-  const [isUnlocked, setIsUnlocked] = useState(false);
-  const [unlockWord, setUnlockWord] = useState("");
+  const [mood, setMood] = useState('normal');
   const [theme, setTheme] = useState('default');
   
   const [data, setData] = useState(() => {
-    const saved = localStorage.getItem('birthday_ultimate_final_data');
+    const saved = localStorage.getItem('birthday_masterpiece_data');
     return saved ? JSON.parse(saved) : {
       title: "Happy Birthday!",
       message: "May your 28th April be filled with immense joy and beautiful smiles.",
       secretLetter: "To the most special person...\n\nI hope this birthday is just as beautiful as you are.",
-      secretWord: "SIYA",
-      unlockMessage: "You discovered the secret! You are my forever star. ✨❤️",
-      images: [], audio: null, video: null, voice: null,
-      timeline: [ { title: 'The Miracle', text: 'April 28th - The day the world got brighter.' }, { title: 'First Meeting', text: 'When our paths finally crossed.' } ],
-      wishes: [ "Stay Blessed!", "Keep Smiling!", "Infinite Love!", "Stay Happy!" ],
-      stickyNotes: [ { text: "You're a star! 🌟"} ]
+      images: [], audio: null,
+      wishDeck: [
+        { id: 1, title: 'Health', text: 'May you always stay strong and full of energy!' },
+        { id: 2, title: 'Happiness', text: 'May your smile never fade from your beautiful face.' },
+        { id: 3, title: 'Success', text: 'May you achieve every dream you chase, no matter how big.' }
+      ]
     };
   });
 
-  useEffect(() => { localStorage.setItem('birthday_ultimate_final_data', JSON.stringify(data)); }, [data]);
+  useEffect(() => { localStorage.setItem('birthday_masterpiece_data', JSON.stringify(data)); }, [data]);
   const audioRef = useRef(null);
 
   return (
-    <div className={`app-root ${theme !== 'default' ? `theme-${theme}` : ''}`} style={{ position: 'relative', minHeight: '100vh', width: '100%', overflowX: 'hidden' }}>
+    <div className={`app-root ${theme !== 'default' ? `theme-${theme}` : ''} mood-${mood}`} style={{ position: 'relative', minHeight: '100vh', width: '100%', overflowX: 'hidden' }}>
       <ParticleBackground />
-      <FloatingWishes wishes={data.wishes} />
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 1 }}>
         {showHearts && Array.from({ length: 15 }).map((_, i) => <motion.div key={i} className="heart-rain" style={{ left: `${Math.random() * 100}%`, animationDuration: `${Math.random() * 3 + 2}s` }}>💖</motion.div>)}
       </div>
@@ -152,6 +152,13 @@ function App() {
               <button className="music-btn" onClick={() => { if(audioRef.current.paused) audioRef.current.play(); else audioRef.current.pause(); }}><Volume2 /></button>
             </div>
 
+            {/* MOOD SELECTOR */}
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '2rem' }}>
+               {['normal', 'vintage', 'dreamy', 'lofi', 'bw'].map(m => (
+                 <button key={m} className={`filter-btn ${mood === m ? 'active' : ''}`} onClick={() => setMood(m)}>{m.toUpperCase()}</button>
+               ))}
+            </div>
+
             {/* HERO */}
             <div className="glass-card" style={{ padding: '3.5rem 1.5rem', textAlign: 'center', marginBottom: '3rem' }}>
               <Heart size={80} fill="var(--primary)" color="var(--primary)" className="heartbeat-anim" style={{ marginBottom: '1.5rem' }} />
@@ -160,56 +167,44 @@ function App() {
               <button className="btn-primary" onClick={() => setShowHearts(!showHearts)}>Rain Love ❤️</button>
             </div>
 
-            {/* VIDEO PLAYER */}
-            {data.video && (
-             <div className="video-container">
-               <video className="video-frame" controls src={data.video}></video>
-             </div>
-            )}
-
-            {/* 3D CUBE */}
-            <PhotoCube images={data.images} />
-
-            {/* JOURNEY TIMELINE */}
+            {/* SWIPE DECK */}
             <div style={{ marginBottom: '4rem' }}>
-              <h3 style={{ textAlign: 'center', fontSize: '2.2rem', marginBottom: '3rem' }} className="shimmer-text">Our Journey 🛤️</h3>
-              <div className="journey-line">
-                {data.timeline.map((item, i) => (
-                  <div key={i} className={`journey-event ${i % 2 === 0 ? 'left' : 'right'}`}>
-                    <div className="journey-dot" />
-                    <div className="journey-content">
-                      <h4 style={{ color: 'var(--primary)' }}>{item.title}</h4>
-                      <p>{item.text}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+               <h3 style={{ textAlign: 'center', fontSize: '2.2rem', marginBottom: '1rem' }} className="shimmer-text">Wishes For You 🃏</h3>
+               <SwipeDeck cards={data.wishDeck} />
             </div>
 
-            {/* SECRET REVEAL */}
-            <div className="glass-card" style={{ padding: '2.5rem', textAlign: 'center', marginBottom: '3rem' }}>
-                <h3 style={{ marginBottom: '1.5rem' }}>🔐 Secret Surprise</h3>
-                <input className="unlock-input" placeholder="Enter Secret Word..." value={unlockWord} onChange={e => setUnlockWord(e.target.value)} />
-                <button className="btn-primary" style={{ padding: '10px 25px' }} onClick={() => { if(unlockWord.toUpperCase() === data.secretWord.toUpperCase()) { setIsUnlocked(true); confetti({ particleCount: 200, spread: 100 }); } else alert("Wrong key! 😉"); }}>Unlock</button>
-                {isUnlocked && <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} className="magic-reveal"><h2 className="shimmer-text">Revealed!</h2><p style={{ fontSize: '1.4rem', fontFamily: 'Dancing Script' }}>{data.unlockMessage}</p></motion.div>}
+            {/* GALLERY */}
+            <div className="glass-card" style={{ padding: '2rem', marginBottom: '3rem' }}>
+              <h3 style={{ textAlign: 'center', fontSize: '2.2rem', marginBottom: '2rem' }}>Gallery 📸</h3>
+              {data.images.length > 0 ? (
+                <div className="photo-frame" style={{ maxWidth: '400px', margin: '0 auto', aspectRatio: '3/4' }}>
+                   <img src={data.images[0].src} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+              ) : <p style={{ textAlign: 'center' }}>Add your photos in the editor!</p>}
             </div>
 
             {/* EDITOR */}
             <div className="glass-card" style={{ padding: '2.5rem', marginBottom: '4rem' }}>
-              <h3>👑 Ultimate Creation Panel</h3>
+              <h3>👑 Masterpiece Panel</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '2rem' }}>
                 <div><label>Big Title</label><input className="input-field" value={data.title} onChange={e => setData({...data, title: e.target.value})} /></div>
-                <div><label>Main Message</label><textarea className="input-field" value={data.message} onChange={e => setData({...data, message: e.target.value})} /></div>
-                <div><label>Secret Word & Msg</label>
-                    <input className="input-field" placeholder="Secret Word" value={data.secretWord} onChange={e => setData({...data, secretWord: e.target.value})} />
-                    <textarea className="input-field" placeholder="Unlock Message" value={data.unlockMessage} onChange={e => setData({...data, unlockMessage: e.target.value})} />
+                <div><label>Birthday Message</label><textarea className="input-field" value={data.message} onChange={e => setData({...data, message: e.target.value})} /></div>
+                <div>
+                  <label>Wishes Deck (Manager)</label>
+                  {data.wishDeck.map((w, idx) => (
+                    <div key={idx} style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                       <input className="input-field" placeholder="Topic" value={w.title} onChange={e => { let n = [...data.wishDeck]; n[idx].title = e.target.value; setData({...data, wishDeck: n}); }} />
+                       <input className="input-field" placeholder="Wish Description" value={w.text} onChange={e => { let n = [...data.wishDeck]; n[idx].text = e.target.value; setData({...data, wishDeck: n}); }} />
+                    </div>
+                  ))}
+                  <button className="btn-primary" style={{ padding: '8px 20px' }} onClick={() => setData({...data, wishDeck: [...data.wishDeck, { id: Date.now(), title: '', text: '' }] })}>Add Card</button>
                 </div>
-                <div><label>Floating Wishes (comma separated)</label><input className="input-field" value={data.wishes.join(', ')} onChange={e => setData({...data, wishes: e.target.value.split(',').map(s=>s.trim())})} /></div>
-                <div><label>Upload Video</label><input type="file" accept="video/*" onChange={e => { const r = new FileReader(); r.onload = () => setData({...data, video: r.result}); r.readAsDataURL(e.target.files[0]); }} /></div>
-                <div><label>Upload Audio</label><input type="file" onChange={e => { const r = new FileReader(); r.onload = () => setData({...data, audio: r.result}); r.readAsDataURL(e.target.files[0]); }} /></div>
-                <div><label>Upload Photos (Need 6 for Cube)</label><input type="file" multiple onChange={e => { Array.from(e.target.files).forEach(f => { const r = new FileReader(); r.onload = () => setData(prev => ({...prev, images: [...prev.images, { src: r.result }] })); r.readAsDataURL(f); }); }} /></div>
+                <div><label>Upload Audio (MP3)</label><input type="file" onChange={e => { const r = new FileReader(); r.onload = () => setData({...data, audio: r.result}); r.readAsDataURL(e.target.files[0]); }} /></div>
+                <div><label>Gallery Upload</label><input type="file" multiple onChange={e => { Array.from(e.target.files).forEach(f => { const r = new FileReader(); r.onload = () => setData(prev => ({...prev, images: [...prev.images, { src: r.result }] })); r.readAsDataURL(f); }); }} /></div>
               </div>
             </div>
+
+            <div style={{ textAlign: 'center', padding: '5rem 0' }}><PartyPopper size={60} color="var(--primary)" /><h2 className="shimmer-text">Forever Special! 🎉</h2></div>
           </motion.div>
         )}
       </AnimatePresence>
