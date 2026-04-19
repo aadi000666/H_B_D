@@ -476,10 +476,83 @@ h1, h2, h3 {
   box-shadow: 0 0 0 3px rgba(255, 77, 109, 0.1);
 }
 
+/* ===== COUNTDOWN TIMER ===== */
+.countdown-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 1.5rem;
+}
+
+.countdown-box {
+  background: rgba(255, 255, 255, 0.4);
+  padding: 12px 6px;
+  border-radius: 16px;
+  text-align: center;
+  border: 1px solid var(--glass-border);
+}
+
+.countdown-box span {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.countdown-box small {
+  font-size: 0.65rem;
+  color: #666;
+  text-transform: uppercase;
+}
+
+/* ===== SECRET LETTER ===== */
+.secret-letter {
+  background: #fdfcf0;
+  padding: 3rem 2rem;
+  border-radius: 4px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  position: relative;
+  font-family: 'Dancing Script', cursive;
+  font-size: 1.4rem;
+  color: #444;
+  line-height: 1.6;
+  border: 1px solid #eee;
+  transform: rotate(-1deg);
+}
+
+.secret-letter::before {
+  content: '📩';
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2.5rem;
+}
+
+.btn-secret {
+  background: var(--dark);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 2rem;
+  transition: all 0.3s;
+}
+
+.btn-secret:hover {
+  background: var(--primary);
+  transform: scale(1.05);
+}
+
 /* ===== MOBILE ADJUSTMENTS ===== */
 @media (max-width: 600px) {
   .audio-player {
     top: 16px;
     right: 16px;
+  }
+  .countdown-box span {
+    font-size: 1.2rem;
   }
 }
