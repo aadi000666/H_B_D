@@ -4,7 +4,7 @@ import confetti from 'canvas-confetti';
 import {
   Heart, Sparkles, Gift, Camera, Star, Music2,
   PartyPopper, Cake, Diamond, FlowerIcon, Settings, X, Plus, Trash2, Upload, 
-  ChevronRight, ChevronLeft, Volume2, VolumeX, Edit3, Save, Music, Clock, Mail, Calendar, HeartOff, Notebook, Palette, Mic, Play, Pause, Moon, Sun
+  ChevronRight, ChevronLeft, Volume2, VolumeX, Edit3, Save, Music, Clock, Mail, Calendar, HeartOff, Notebook, Palette, Mic, Play, Pause, Sun, Moon, Lock, Unlock, Waves
 } from 'lucide-react';
 import './index.css';
 
@@ -15,7 +15,6 @@ function ParticleBackground() {
   const canvasRef = useRef(null);
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     let animId;
     const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
@@ -52,72 +51,96 @@ function ParticleBackground() {
 }
 
 /* ─────────────────────────────────────────────
-   SPARKLE CURSOR TRAIL
+   3D PHOTO CUBE
  ───────────────────────────────────────────── */
-function SparkleTrail() {
-  const [sparkles, setSparkles] = useState([]);
-  useEffect(() => {
-    const handleMove = (e) => {
-      const id = Date.now();
-      const x = e.touches ? e.touches[0].clientX : e.clientX;
-      const y = e.touches ? e.touches[0].clientY : e.clientY;
-      const char = ['✨', '⭐', '💫', '🌟'][Math.floor(Math.random() * 4)];
-      setSparkles(prev => [...prev.slice(-15), { id, x, y, char }]);
-    };
-    window.addEventListener('mousemove', handleMove);
-    window.addEventListener('touchmove', handleMove);
-    return () => { window.removeEventListener('mousemove', handleMove); window.removeEventListener('touchmove', handleMove); };
-  }, []);
-  return sparkles.map(s => <motion.div key={s.id} className="sparkle" initial={{ opacity: 1 }} animate={{ opacity: 0, scale: 2 }} style={{ left: s.x - 10, top: s.y - 10 }}>{s.char}</motion.div>);
+function PhotoCube({ images }) {
+  if (images.length < 1) return null;
+  const faces = ['front', 'back', 'right', 'left', 'top', 'bottom'];
+  return (
+    <div className="cube-container">
+      <div className="cube">
+        {faces.map((f, i) => (
+          <div key={f} className={`cube-face ${f}`}>
+            <img src={images[i % images.length].src} alt="" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 /* ─────────────────────────────────────────────
    MAIN APP
  ───────────────────────────────────────────── */
 function App() {
+  const [isUnboxed, setIsUnboxed] = useState(false);
   const [showContent, setShowContent] = useState(false);
   const [isBlown, setIsBlown] = useState(false);
   const [showHearts, setShowHearts] = useState(false);
+  const [showBottle, setShowBottle] = useState(null);
+  const [unlockWord, setUnlockWord] = useState("");
+  const [isUnlocked, setIsUnlocked] = useState(false);
   const [theme, setTheme] = useState('default');
+  
   const [data, setData] = useState(() => {
     const saved = localStorage.getItem('birthday_pinnacle_data');
     return saved ? JSON.parse(saved) : {
       title: "Happy Birthday!",
       message: "May your 28th April be filled with immense joy and beautiful smiles.",
       secretLetter: "To the most special person...\n\nI hope this birthday is just as beautiful as you are.",
+      secretWord: "SIYA",
+      unlockMessage: "You discovered the secret! You are my forever star. ✨❤️",
       images: [], audio: null, voice: null,
-      timeline: [ { year: '2024', text: 'Another year of brilliance!' } ],
-      stickyNotes: [ { text: "You're a star! 🌟"} ]
+      timeline: [ { year: '2024', text: 'Another year of being amazing!' } ],
+      stickyNotes: [ { text: "You're a star! 🌟", color: '#fef08a' } ]
     };
   });
 
   useEffect(() => { localStorage.setItem('birthday_pinnacle_data', JSON.stringify(data)); }, [data]);
-  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
-  const [isPlayingVoice, setIsPlayingVoice] = useState(false);
   const audioRef = useRef(null);
-  const voiceRef = useRef(null);
-
-  const toggleAudio = () => { setIsPlayingAudio(!isPlayingAudio); if (!isPlayingAudio && audioRef.current) audioRef.current.play(); else if (audioRef.current) audioRef.current.pause(); };
-  const toggleVoice = () => { setIsPlayingVoice(!isPlayingVoice); if (!isPlayingVoice && voiceRef.current) voiceRef.current.play(); else if (voiceRef.current) voiceRef.current.pause(); };
+  const quotes = ["Your smile is my sunshine! ☀️", "You make every day feel like a celebration! 🎉", "To the moon and back! 🌙", "Infinite love for you! 💖", "Keep shineing, queen! 👑"];
 
   return (
     <div className={`app-root ${theme !== 'default' ? `theme-${theme}` : ''}`} style={{ position: 'relative', minHeight: '100vh', width: '100%', overflowX: 'hidden' }}>
       <ParticleBackground />
-      <SparkleTrail />
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 1 }}>
-        {showHearts && Array.from({ length: 12 }).map((_, i) => <motion.div key={i} className="heart-rain" style={{ left: `${Math.random() * 100}%`, animationDuration: `${Math.random() * 3 + 2}s` }}>💖</motion.div>)}
+        {showHearts && Array.from({ length: 15 }).map((_, i) => <motion.div key={i} className="heart-rain" style={{ left: `${Math.random() * 100}%`, animationDuration: `${Math.random() * 3 + 2}s` }}>💖</motion.div>)}
       </div>
 
-      <audio ref={audioRef} src={data.audio} loop onPlay={()=>setIsPlayingAudio(true)} onPause={()=>setIsPlayingAudio(false)} />
-      <audio ref={voiceRef} src={data.voice} onPlay={()=>setIsPlayingVoice(true)} onPause={()=>setIsPlayingVoice(false)} />
+      <audio ref={audioRef} src={data.audio} loop />
+
+      {/* MESSAGE IN A BOTTLE */}
+      {showContent && (
+        <motion.div className="bottle-float" whileHover={{ scale: 1.2 }} onClick={() => setShowBottle(quotes[Math.floor(Math.random()*quotes.length)])}>
+           <Waves size={40} color="var(--primary)" />
+        </motion.div>
+      )}
+      <AnimatePresence>
+        {showBottle && (
+          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} className="bottle-popup" onClick={() => setShowBottle(null)}>
+             <p>{showBottle}</p>
+             <button className="btn-primary" style={{ marginTop: '1rem', padding: '8px 20px' }}>Close</button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence mode="wait">
         {!showContent ? (
           <motion.div key="landing" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', textAlign: 'center', padding: '1.5rem', position: 'relative', zIndex: 2 }}>
-            <div className="candle" onClick={() => {setIsBlown(true); confetti({ particleCount: 150 });}}><AnimatePresence>{!isBlown && <motion.div exit={{ opacity: 0, scale: 0 }} className="flame" />}</AnimatePresence></div>
-            <Cake size={110} className="floating-b" color="#ff4d6d" style={{ marginTop: '10px' }} />
-            <h1 className="rainbow-text" style={{ fontSize: 'clamp(3rem, 12vw, 6.5rem)' }}>{data.title}</h1>
-            {isBlown && <motion.button className="btn-primary" initial={{ scale: 0 }} animate={{ scale: 1 }} onClick={() => setShowContent(true)}>Open Gift 🎁</motion.button>}
+            <div className={`gift-box-wrapper ${isUnboxed ? 'open' : ''}`} onClick={() => { setIsUnboxed(true); confetti({ particleCount: 150 }); }}>
+                 {!isUnboxed ? (
+                    <motion.div animate={{ rotate: [0, -5, 5, -5, 0], scale: [1, 1.05, 1] }} transition={{ repeat: Infinity, duration: 2 }}>
+                        <Gift size={120} color="var(--primary)" style={{ filter: 'drop-shadow(0 0 20px rgba(255,77,109,0.5))' }} />
+                    </motion.div>
+                 ) : (
+                    <div style={{ marginTop: '20px' }}>
+                         <div className="candle" onClick={() => { setIsBlown(true); confetti({ particleCount: 150 }); }}><AnimatePresence>{!isBlown && <motion.div exit={{ opacity: 0, scale: 0 }} className="flame" />}</AnimatePresence></div>
+                         <Cake size={110} className="floating-b" color="#ff4d6d" />
+                    </div>
+                 )}
+            </div>
+            <h1 className="rainbow-text" style={{ fontSize: 'clamp(3rem, 12vw, 6.5rem)', marginTop: '20px' }}>{data.title}</h1>
+            {isBlown && <motion.button className="btn-primary" initial={{ scale: 0 }} animate={{ scale: 1 }} onClick={() => { setShowContent(true); if(audioRef.current) audioRef.current.play(); }}>Open Gift 🎁</motion.button>}
           </motion.div>
         ) : (
           <motion.div key="content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ padding: 'clamp(0.8rem, 4vw, 3rem)', maxWidth: '1000px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
@@ -129,7 +152,7 @@ function App() {
                 <div className="theme-dot" style={{ background: '#c5a059' }} onClick={() => setTheme('gold')} />
                 <div className="theme-dot" style={{ background: '#9b5de5' }} onClick={() => setTheme('purple')} />
               </div>
-              <button className={`music-btn ${isPlayingAudio ? 'playing' : ''}`} onClick={toggleAudio}>{isPlayingAudio ? <Volume2 size={24} /> : <VolumeX size={24} />}</button>
+              <button className="music-btn" onClick={() => { if(audioRef.current.paused) audioRef.current.play(); else audioRef.current.pause(); }}><Volume2 /></button>
             </div>
 
             {/* HERO */}
@@ -137,50 +160,38 @@ function App() {
               <Heart size={80} fill="var(--primary)" color="var(--primary)" className="heartbeat-anim" style={{ marginBottom: '1.5rem' }} />
               <h1 className="rainbow-text" style={{ fontSize: 'clamp(2.5rem, 8vw, 4.5rem)' }}>{data.title}</h1>
               <p style={{ fontSize: '1.3rem', color: '#4a4e69', marginBottom: '2rem' }}>{data.message}</p>
-              <button className="btn-primary" onClick={() => setShowHearts(!showHearts)}>{showHearts ? "Stop Love" : "Rain Love ❤️"}</button>
+              <button className="btn-primary" onClick={() => setShowHearts(!showHearts)}>Rain Love ❤️</button>
             </div>
 
-            {/* ZODIAC SECTION */}
-            <div className="zodiac-card">
-               <h2 className="zodiac-title">Taurus Legend ♉</h2>
-               <p style={{ color: '#fff', fontSize: '1.2rem', marginBottom: '1.5rem', opacity: 0.9 }}>Born on April 28th, you carry the grace of Venus and the strength of the Earth.</p>
-               <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '10px' }}>
-                  {['Reliable', 'Ambitious', 'Sensual', 'Practical', 'Loyal', 'Artistic'].map(t => <span key={t} className="trait-tag">{t}</span>)}
-               </div>
-            </div>
+            {/* 3D CUBE */}
+            <PhotoCube images={data.images} />
 
-            {/* VOICE NOTE */}
-            <div className="voice-note-card">
-              <h3>Personal Voice Message 🎙️</h3>
-              {data.voice ? <button className="voice-btn" onClick={toggleVoice}>{isPlayingVoice ? <Pause size={30} /> : <Play size={30} />}</button> : <p style={{ marginTop: '1rem', color: '#666' }}>Upload a voice note in the panel below!</p>}
-            </div>
-
-            {/* STICKY NOTES */}
-            <div style={{ marginBottom: '4rem' }}>
-              <h3 style={{ textAlign: 'center', marginBottom: '2rem' }}>Our Memories 📌</h3>
-              <div className="memory-wall">
-                {data.stickyNotes.map((note, i) => (<motion.div key={i} className="sticky-note" whileHover={{ scale: 1.1 }}>{note.text}</motion.div>))}
-                <button className="btn-primary" style={{ height: '50px', alignSelf: 'center' }} onClick={() => { const t = prompt("Memory:"); if(t) setData({...data, stickyNotes: [...data.stickyNotes, {text: t}]}); }}><Plus /></button>
-              </div>
-            </div>
-
-            {/* GALLERY */}
-            <div className="glass-card" style={{ padding: '2rem', marginBottom: '3rem' }}>
-              <h3 style={{ textAlign: 'center', fontSize: '2rem', marginBottom: '2rem' }} className="shimmer-text">Gallery 📸</h3>
-              {data.images.length > 0 ? (
-                <div key="photo" className="photo-frame" style={{ maxWidth: '400px', margin: '0 auto', aspectRatio: '3/4' }}><img src={data.images[0].src} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /></div>
-              ) : <p style={{ textAlign: 'center' }}>Add photos in the editor below!</p>}
+            {/* SECRET UNLOCK */}
+            <div className="unlock-panel">
+               <h3 style={{ marginBottom: '1rem' }}><Lock size={24} style={{ marginRight: 8 }} /> Master Secret Surprise</h3>
+               <p style={{ marginBottom: '1rem', color: '#666' }}>Type the secret word to unlock an extra message!</p>
+               <input className="unlock-input" placeholder="Type word..." value={unlockWord} onChange={e => setUnlockWord(e.target.value)} />
+               <button className="btn-primary" style={{ padding: '10px 25px' }} onClick={() => { if(unlockWord.toUpperCase() === data.secretWord.toUpperCase()) { setIsUnlocked(true); confetti({ particleCount: 200, spread: 100 }); } else alert("Wrong word! Ask the sender for the key. 😉"); }}>Check</button>
+               <AnimatePresence>
+                 {isUnlocked && (
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className="magic-reveal">
+                       <Sparkles color="var(--gold)" style={{ marginBottom: 10 }} />
+                       <h2 className="shimmer-text">Success! Unlock Code Accepted.</h2>
+                       <p style={{ fontSize: '1.5rem', fontFamily: 'Dancing Script', marginTop: '1rem' }}>{data.unlockMessage}</p>
+                    </motion.div>
+                 )}
+               </AnimatePresence>
             </div>
 
             {/* EDITOR */}
-            <div className="glass-card" style={{ padding: '2.5rem', marginBottom: '4rem' }}>
-              <h3>👑 Master Personalization Panel</h3>
+            <div className="glass-card" style={{ padding: '2.5rem', marginBottom: '4rem', marginTop: '4rem' }}>
+              <h3>👑 Pinnacle Creation Panel</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '2rem' }}>
                 <div><label>Big Title</label><input className="input-field" value={data.title} onChange={e => setData({...data, title: e.target.value})} /></div>
-                <div><label>Your Message</label><textarea className="input-field" value={data.message} onChange={e => setData({...data, message: e.target.value})} /></div>
-                <div><label>Audio (MP3)</label><input type="file" onChange={e => { const r = new FileReader(); r.onload = () => setData({...data, audio: r.result}); r.readAsDataURL(e.target.files[0]); }} /></div>
-                <div><label>Voice (MP3)</label><input type="file" onChange={e => { const r = new FileReader(); r.onload = () => setData({...data, voice: r.result}); r.readAsDataURL(e.target.files[0]); }} /></div>
-                <div><label>Photos</label><input type="file" multiple onChange={e => { Array.from(e.target.files).forEach(f => { const r = new FileReader(); r.onload = () => setData(prev => ({...prev, images: [...prev.images, { src: r.result }] })); r.readAsDataURL(f); }); }} /></div>
+                <div><label>Secret Word (for unlock)</label><input className="input-field" value={data.secretWord} onChange={e => setData({...data, secretWord: e.target.value})} /></div>
+                <div><label>Unlock Message</label><textarea className="input-field" value={data.unlockMessage} onChange={e => setData({...data, unlockMessage: e.target.value})} /></div>
+                <div><label>Upload Audio</label><input type="file" onChange={e => { const r = new FileReader(); r.onload = () => setData({...data, audio: r.result}); r.readAsDataURL(e.target.files[0]); }} /></div>
+                <div><label>Photos (Need 6 for Cube)</label><input type="file" multiple onChange={e => { Array.from(e.target.files).forEach(f => { const r = new FileReader(); r.onload = () => setData(prev => ({...prev, images: [...prev.images, { src: r.result }] })); r.readAsDataURL(f); }); }} /></div>
               </div>
             </div>
           </motion.div>

@@ -860,7 +860,127 @@ h1, h2, h3 {
   color: #991b1b;
 }
 
-/* ===== MOBILE ADJUSTMENTS ===== */
-@media (max-width: 600px) {
-  .sticky-note { width: 45%; min-height: 140px; font-size: 1.1rem; }
+/* ===== 3D PHOTO CUBE ===== */
+.cube-container {
+  width: 200px;
+  height: 200px;
+  perspective: 1000px;
+  margin: 4rem auto;
+}
+
+.cube {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  animation: rotateCube 20s infinite linear;
+}
+
+.cube-face {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border: 2px solid var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0,0,0,0.1);
+  background: white;
+}
+
+.cube-face img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.front  { transform: rotateY(0deg) translateZ(100px); }
+.back   { transform: rotateY(180deg) translateZ(100px); }
+.right  { transform: rotateY(90deg) translateZ(100px); }
+.left   { transform: rotateY(-90deg) translateZ(100px); }
+.top    { transform: rotateX(90deg) translateZ(100px); }
+.bottom { transform: rotateX(-90deg) translateZ(100px); }
+
+@keyframes rotateCube {
+  from { transform: rotateX(0deg) rotateY(0deg); }
+  to { transform: rotateX(360deg) rotateY(360deg); }
+}
+
+/* ===== GIFT UNBOXING ===== */
+.gift-box-wrapper {
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.gift-box-wrapper:hover {
+  transform: scale(1.05);
+}
+
+.box-lid {
+  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.box-lid.open {
+  transform: translateY(-40px) rotate(-15deg);
+  opacity: 0;
+}
+
+/* ===== MESSAGE IN A BOTTLE ===== */
+.bottle-float {
+  position: fixed;
+  bottom: 80px;
+  left: 20px;
+  z-index: 100;
+  cursor: pointer;
+  filter: drop-shadow(0 0 10px rgba(0,0,0,0.1));
+  animation: floatB 6s infinite ease-in-out;
+}
+
+.bottle-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2000;
+  padding: 2.5rem;
+  background: #fff9e6;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  text-align: center;
+  font-family: 'Dancing Script', cursive;
+  font-size: 1.8rem;
+  border: 4px solid #fde68a;
+  max-width: 90%;
+}
+
+/* ===== SECRET UNLOCK ===== */
+.unlock-panel {
+  margin-top: 3rem;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 20px;
+  border: 1px dashed var(--primary);
+  text-align: center;
+}
+
+.unlock-input {
+  background: white;
+  border: 2px solid var(--primary);
+  padding: 10px 20px;
+  border-radius: 50px;
+  font-family: inherit;
+  font-size: 1.1rem;
+  outline: none;
+  width: 200px;
+  margin-right: 10px;
+}
+
+.magic-reveal {
+  padding: 2rem;
+  background: linear-gradient(135deg, #fff 0%, var(--pink-soft) 100%);
+  border-radius: 24px;
+  box-shadow: 0 0 30px var(--shadow-color);
+  margin-top: 2rem;
 }
