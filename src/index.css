@@ -632,10 +632,85 @@ h1, h2, h3 {
   to { transform: scale(1.1) rotate(2deg); opacity: 0.8; }
 }
 
+/* ===== MEMORY WALL / STICKY NOTES ===== */
+.memory-wall {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  padding: 2rem 0;
+}
+
+.sticky-note {
+  width: 180px;
+  min-height: 180px;
+  padding: 20px;
+  background: #fef08a;
+  box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+  transform: rotate(-2deg);
+  font-family: 'Dancing Script', cursive;
+  font-size: 1.25rem;
+  color: #1a1a1a;
+  position: relative;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.sticky-note:nth-child(even) { transform: rotate(3deg); background: #bbf7d0; }
+.sticky-note:nth-child(3n) { transform: rotate(-1deg); background: #bfdbfe; }
+.sticky-note:hover { transform: scale(1.1) rotate(0deg); z-index: 10; }
+
+.sticky-note::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  border-width: 0 25px 25px 0;
+  border-style: solid;
+  border-color: rgba(0,0,0,0.1) transparent;
+}
+
+/* ===== INTERACTIVE QUIZ ===== */
+.quiz-card {
+  background: white;
+  border-radius: 24px;
+  padding: 2rem;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  margin-bottom: 2rem;
+  border: 1px solid var(--pink-soft);
+}
+
+.quiz-option {
+  width: 100%;
+  padding: 14px;
+  margin-top: 10px;
+  border: 2px solid var(--pink-soft);
+  border-radius: 12px;
+  background: none;
+  font-family: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.quiz-option:hover {
+  background: var(--pink-soft);
+  border-color: var(--primary);
+}
+
+.quiz-option.correct {
+  background: #dcfce7;
+  border-color: #22c55e;
+  color: #166534;
+}
+
+.quiz-option.wrong {
+  background: #fee2e2;
+  border-color: #ef4444;
+  color: #991b1b;
+}
+
 /* ===== MOBILE ADJUSTMENTS ===== */
 @media (max-width: 600px) {
-  .timeline::after { left: 31px; }
-  .timeline-item { width: 100%; padding-left: 70px; padding-right: 25px; text-align: left !important; }
-  .timeline-item.right { left: 0; }
-  .timeline-dot { left: 23px !important; }
+  .sticky-note { width: 45%; min-height: 140px; font-size: 1.1rem; }
 }
