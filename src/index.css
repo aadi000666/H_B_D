@@ -729,7 +729,58 @@ h1, h2, h3 {
   transition: all 0.3s;
 }
 
-.voice-btn:hover { transform: scale(1.1); box-shadow: 0 0 20px var(--primary); }
+/* ===== ZODIAC SECTION ===== */
+.zodiac-card {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #e94560;
+  padding: 3rem 2rem;
+  border-radius: 32px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+  margin-bottom: 3rem;
+  border: 1px solid rgba(233, 69, 96, 0.3);
+}
+
+.zodiac-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('https://www.transparenttextures.com/patterns/stardust.png');
+  opacity: 0.2;
+}
+
+.zodiac-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  background: linear-gradient(to right, #ffd700, #e94560);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.trait-tag {
+  display: inline-block;
+  padding: 8px 16px;
+  margin: 5px;
+  background: rgba(233, 69, 96, 0.15);
+  border: 1px solid #e94560;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* ===== FINAL POLISH ===== */
+.app-root {
+  transition: background-color 0.5s ease;
+}
+
+@media (max-width: 600px) {
+  .zodiac-title { font-size: 2.2rem; }
+}
 
 /* ===== MEMORY WALL / STICKY NOTES ===== */
 .memory-wall {

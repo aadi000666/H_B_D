@@ -4,7 +4,7 @@ import confetti from 'canvas-confetti';
 import {
   Heart, Sparkles, Gift, Camera, Star, Music2,
   PartyPopper, Cake, Diamond, FlowerIcon, Settings, X, Plus, Trash2, Upload, 
-  ChevronRight, ChevronLeft, Volume2, VolumeX, Edit3, Save, Music, Clock, Mail, Calendar, HeartOff, Notebook, Palette, Mic, Play, Pause
+  ChevronRight, ChevronLeft, Volume2, VolumeX, Edit3, Save, Music, Clock, Mail, Calendar, HeartOff, Notebook, Palette, Mic, Play, Pause, Moon, Sun
 } from 'lucide-react';
 import './index.css';
 
@@ -68,36 +68,7 @@ function SparkleTrail() {
     window.addEventListener('touchmove', handleMove);
     return () => { window.removeEventListener('mousemove', handleMove); window.removeEventListener('touchmove', handleMove); };
   }, []);
-
-  return sparkles.map(s => (
-    <motion.div key={s.id} className="sparkle" initial={{ opacity: 1 }} animate={{ opacity: 0, scale: 2 }} style={{ left: s.x - 10, top: s.y - 10 }}>{s.char}</motion.div>
-  ));
-}
-
-/* ─────────────────────────────────────────────
-   QUIZ COMPONENT
- ───────────────────────────────────────────── */
-function BirthdayQuiz() {
-  const questions = [
-    { q: "What's her favorite color?", options: ["Pink", "Red", "Lavender", "Gold"], correct: 0 },
-    { q: "Her favorite food?", options: ["Pizza", "Pasta", "Burgers", "Sushi"], correct: 1 },
-    { q: "Secret superpower?", options: ["Kindness", "Patience", "Comedy", "Sleeping"], correct: 2 }
-  ];
-  const [idx, setIdx] = useState(0);
-  const [score, setScore] = useState(0);
-  const [done, setDone] = useState(false);
-  
-  if (done) return <div className="quiz-card" style={{ textAlign: 'center' }}><h3>Quiz Over! 🎉</h3><p>Score: {score}/3</p><button className="btn-primary" onClick={() => {setIdx(0);setScore(0);setDone(false);}}>Restart</button></div>;
-
-  return (
-    <div className="quiz-card">
-      <h4 style={{ color: 'var(--primary)', marginBottom: '1rem' }}>Fun Quiz: How well do you know her?</h4>
-      <p style={{ fontWeight: 600, fontSize: '1.2rem', marginBottom: '1.5rem' }}>{questions[idx].q}</p>
-      {questions[idx].options.map((opt, i) => (
-        <button key={i} className="quiz-option" onClick={() => {if(i===questions[idx].correct)setScore(score+1); if(idx < 2) setIdx(idx+1); else setDone(true);}}>{opt}</button>
-      ))}
-    </div>
-  );
+  return sparkles.map(s => <motion.div key={s.id} className="sparkle" initial={{ opacity: 1 }} animate={{ opacity: 0, scale: 2 }} style={{ left: s.x - 10, top: s.y - 10 }}>{s.char}</motion.div>);
 }
 
 /* ─────────────────────────────────────────────
@@ -109,41 +80,32 @@ function App() {
   const [showHearts, setShowHearts] = useState(false);
   const [theme, setTheme] = useState('default');
   const [data, setData] = useState(() => {
-    const saved = localStorage.getItem('birthday_final_data');
+    const saved = localStorage.getItem('birthday_pinnacle_data');
     return saved ? JSON.parse(saved) : {
       title: "Happy Birthday!",
       message: "May your 28th April be filled with immense joy and beautiful smiles.",
       secretLetter: "To the most special person...\n\nI hope this birthday is just as beautiful as you are.",
       images: [], audio: null, voice: null,
       timeline: [ { year: '2024', text: 'Another year of brilliance!' } ],
-      stickyNotes: [ { text: "You're a star! 🌟", color: '#fef08a' } ]
+      stickyNotes: [ { text: "You're a star! 🌟"} ]
     };
   });
 
-  useEffect(() => { localStorage.setItem('birthday_final_data', JSON.stringify(data)); }, [data]);
+  useEffect(() => { localStorage.setItem('birthday_pinnacle_data', JSON.stringify(data)); }, [data]);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [isPlayingVoice, setIsPlayingVoice] = useState(false);
   const audioRef = useRef(null);
   const voiceRef = useRef(null);
 
-  const toggleAudio = () => {
-    setIsPlayingAudio(!isPlayingAudio);
-    if (!isPlayingAudio && audioRef.current) audioRef.current.play().catch(e => console.log(e));
-    else if (audioRef.current) audioRef.current.pause();
-  };
-
-  const toggleVoice = () => {
-    setIsPlayingVoice(!isPlayingVoice);
-    if (!isPlayingVoice && voiceRef.current) voiceRef.current.play().catch(e => console.log(e));
-    else if (voiceRef.current) voiceRef.current.pause();
-  };
+  const toggleAudio = () => { setIsPlayingAudio(!isPlayingAudio); if (!isPlayingAudio && audioRef.current) audioRef.current.play(); else if (audioRef.current) audioRef.current.pause(); };
+  const toggleVoice = () => { setIsPlayingVoice(!isPlayingVoice); if (!isPlayingVoice && voiceRef.current) voiceRef.current.play(); else if (voiceRef.current) voiceRef.current.pause(); };
 
   return (
     <div className={`app-root ${theme !== 'default' ? `theme-${theme}` : ''}`} style={{ position: 'relative', minHeight: '100vh', width: '100%', overflowX: 'hidden' }}>
       <ParticleBackground />
       <SparkleTrail />
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 1 }}>
-        {showHearts && Array.from({ length: 10 }).map((_, i) => <motion.div key={i} className="heart-rain" style={{ left: `${Math.random() * 100}%`, animationDuration: `${Math.random() * 3 + 2}s` }}>💖</motion.div>)}
+        {showHearts && Array.from({ length: 12 }).map((_, i) => <motion.div key={i} className="heart-rain" style={{ left: `${Math.random() * 100}%`, animationDuration: `${Math.random() * 3 + 2}s` }}>💖</motion.div>)}
       </div>
 
       <audio ref={audioRef} src={data.audio} loop onPlay={()=>setIsPlayingAudio(true)} onPause={()=>setIsPlayingAudio(false)} />
@@ -155,7 +117,7 @@ function App() {
             <div className="candle" onClick={() => {setIsBlown(true); confetti({ particleCount: 150 });}}><AnimatePresence>{!isBlown && <motion.div exit={{ opacity: 0, scale: 0 }} className="flame" />}</AnimatePresence></div>
             <Cake size={110} className="floating-b" color="#ff4d6d" style={{ marginTop: '10px' }} />
             <h1 className="rainbow-text" style={{ fontSize: 'clamp(3rem, 12vw, 6.5rem)' }}>{data.title}</h1>
-            {isBlown && <motion.button className="btn-primary" initial={{ scale: 0 }} animate={{ scale: 1 }} onClick={() => {setShowContent(true); if(audioRef.current) audioRef.current.play().catch(e=>console.log(e));}}>Open Gift 🎁</motion.button>}
+            {isBlown && <motion.button className="btn-primary" initial={{ scale: 0 }} animate={{ scale: 1 }} onClick={() => setShowContent(true)}>Open Gift 🎁</motion.button>}
           </motion.div>
         ) : (
           <motion.div key="content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ padding: 'clamp(0.8rem, 4vw, 3rem)', maxWidth: '1000px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
@@ -175,26 +137,30 @@ function App() {
               <Heart size={80} fill="var(--primary)" color="var(--primary)" className="heartbeat-anim" style={{ marginBottom: '1.5rem' }} />
               <h1 className="rainbow-text" style={{ fontSize: 'clamp(2.5rem, 8vw, 4.5rem)' }}>{data.title}</h1>
               <p style={{ fontSize: '1.3rem', color: '#4a4e69', marginBottom: '2rem' }}>{data.message}</p>
-              <button className="btn-primary" onClick={() => setShowHearts(!showHearts)}>{showHearts ? "Stop Hearts" : "Rain Hearts ❤️"}</button>
+              <button className="btn-primary" onClick={() => setShowHearts(!showHearts)}>{showHearts ? "Stop Love" : "Rain Love ❤️"}</button>
+            </div>
+
+            {/* ZODIAC SECTION */}
+            <div className="zodiac-card">
+               <h2 className="zodiac-title">Taurus Legend ♉</h2>
+               <p style={{ color: '#fff', fontSize: '1.2rem', marginBottom: '1.5rem', opacity: 0.9 }}>Born on April 28th, you carry the grace of Venus and the strength of the Earth.</p>
+               <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '10px' }}>
+                  {['Reliable', 'Ambitious', 'Sensual', 'Practical', 'Loyal', 'Artistic'].map(t => <span key={t} className="trait-tag">{t}</span>)}
+               </div>
             </div>
 
             {/* VOICE NOTE */}
             <div className="voice-note-card">
-              <h3>A Personal Message 🎙️</h3>
-              {data.voice ? (
-                <button className="voice-btn" onClick={toggleVoice}>{isPlayingVoice ? <Pause size={30} /> : <Play size={30} />}</button>
-              ) : <p style={{ marginTop: '1rem', color: '#666' }}>No voice note uploaded yet.</p>}
+              <h3>Personal Voice Message 🎙️</h3>
+              {data.voice ? <button className="voice-btn" onClick={toggleVoice}>{isPlayingVoice ? <Pause size={30} /> : <Play size={30} />}</button> : <p style={{ marginTop: '1rem', color: '#666' }}>Upload a voice note in the panel below!</p>}
             </div>
-
-            {/* QUIZ */}
-            <BirthdayQuiz />
 
             {/* STICKY NOTES */}
             <div style={{ marginBottom: '4rem' }}>
-              <h3 style={{ textAlign: 'center', marginBottom: '2rem' }}>Memory Wall 📌</h3>
+              <h3 style={{ textAlign: 'center', marginBottom: '2rem' }}>Our Memories 📌</h3>
               <div className="memory-wall">
                 {data.stickyNotes.map((note, i) => (<motion.div key={i} className="sticky-note" whileHover={{ scale: 1.1 }}>{note.text}</motion.div>))}
-                <button className="btn-primary" style={{ height: '50px', alignSelf: 'center' }} onClick={() => { const t = prompt("Memory text:"); if(t) setData({...data, stickyNotes: [...data.stickyNotes, {text: t}]}); }}><Plus /></button>
+                <button className="btn-primary" style={{ height: '50px', alignSelf: 'center' }} onClick={() => { const t = prompt("Memory:"); if(t) setData({...data, stickyNotes: [...data.stickyNotes, {text: t}]}); }}><Plus /></button>
               </div>
             </div>
 
@@ -202,26 +168,21 @@ function App() {
             <div className="glass-card" style={{ padding: '2rem', marginBottom: '3rem' }}>
               <h3 style={{ textAlign: 'center', fontSize: '2rem', marginBottom: '2rem' }} className="shimmer-text">Gallery 📸</h3>
               {data.images.length > 0 ? (
-                <div key="photo" className="photo-frame" style={{ maxWidth: '400px', margin: '0 auto', aspectRatio: '3/4' }}>
-                   <img src={data.images[0].src} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                </div>
+                <div key="photo" className="photo-frame" style={{ maxWidth: '400px', margin: '0 auto', aspectRatio: '3/4' }}><img src={data.images[0].src} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /></div>
               ) : <p style={{ textAlign: 'center' }}>Add photos in the editor below!</p>}
             </div>
 
             {/* EDITOR */}
             <div className="glass-card" style={{ padding: '2.5rem', marginBottom: '4rem' }}>
-              <h3>👑 Master Creator Panel</h3>
+              <h3>👑 Master Personalization Panel</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '2rem' }}>
-                <div><label>Title</label><input className="input-field" value={data.title} onChange={e => setData({...data, title: e.target.value})} /></div>
-                <div><label>Message</label><textarea className="input-field" value={data.message} onChange={e => setData({...data, message: e.target.value})} /></div>
-                <div><label>Secret Letter</label><textarea className="input-field" style={{ minHeight: '100px' }} value={data.secretLetter} onChange={e => setData({...data, secretLetter: e.target.value})} /></div>
+                <div><label>Big Title</label><input className="input-field" value={data.title} onChange={e => setData({...data, title: e.target.value})} /></div>
+                <div><label>Your Message</label><textarea className="input-field" value={data.message} onChange={e => setData({...data, message: e.target.value})} /></div>
                 <div><label>Audio (MP3)</label><input type="file" onChange={e => { const r = new FileReader(); r.onload = () => setData({...data, audio: r.result}); r.readAsDataURL(e.target.files[0]); }} /></div>
                 <div><label>Voice (MP3)</label><input type="file" onChange={e => { const r = new FileReader(); r.onload = () => setData({...data, voice: r.result}); r.readAsDataURL(e.target.files[0]); }} /></div>
                 <div><label>Photos</label><input type="file" multiple onChange={e => { Array.from(e.target.files).forEach(f => { const r = new FileReader(); r.onload = () => setData(prev => ({...prev, images: [...prev.images, { src: r.result }] })); r.readAsDataURL(f); }); }} /></div>
               </div>
             </div>
-
-            <div style={{ textAlign: 'center', padding: '5rem 0' }}><PartyPopper size={60} color="var(--primary)" /><h2 className="shimmer-text">Celebrate Every Day! 🎉</h2></div>
           </motion.div>
         )}
       </AnimatePresence>
