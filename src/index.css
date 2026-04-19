@@ -690,7 +690,46 @@ h1, h2, h3 {
   transition: all 0.3s;
 }
 
-.theme-dot:hover { transform: scale(1.2); }
+/* ===== SPARKLE TRAIL ===== */
+.sparkle {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  font-size: 1.2rem;
+  animation: sparkle-disappear 0.8s forwards ease-out;
+}
+
+@keyframes sparkle-disappear {
+  0% { transform: scale(0) rotate(0deg); opacity: 1; filter: blur(0); }
+  100% { transform: scale(1.5) rotate(180deg); opacity: 0; filter: blur(4px); }
+}
+
+/* ===== VOICE NOTE ===== */
+.voice-note-card {
+  background: linear-gradient(135deg, var(--white), var(--pink-soft));
+  padding: 2rem;
+  border-radius: 32px;
+  text-align: center;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 10px 30px var(--shadow-color);
+  margin-bottom: 3rem;
+}
+
+.voice-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1.5rem auto;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.voice-btn:hover { transform: scale(1.1); box-shadow: 0 0 20px var(--primary); }
 
 /* ===== MEMORY WALL / STICKY NOTES ===== */
 .memory-wall {
